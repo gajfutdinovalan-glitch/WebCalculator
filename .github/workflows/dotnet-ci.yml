@@ -1,4 +1,4 @@
-name: Web Calculator CI/CD
+name: WebCalculator CI/CD
 
 on:
 push:
