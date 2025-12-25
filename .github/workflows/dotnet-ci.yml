@@ -1,38 +1,78 @@
-name: .NET CI Pipeline
+name: Web Calculator CI/CD
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
+push:
+branches: [ "main" ]
+pull_request:
+branches: [ "main" ]
+env:
+DOTNET_VERSION: '8.0.x'
+PROJECT_PATH: 'src/WebCalculator'
+TEST_PATH: 'tests/WebCalculator.Tests'
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+# Джоба 1: Проверка кода и установка
+зависимостей
+setup:
+name: Подготовка окружения
+runs-on: ubuntu-latest
+steps:
+- name: Загружаем код из
+репозитория
+uses: actions/checkout@v4
+- name: Проверяем структуру
+проекта
+run: |
+еcho "Проверяем наличие всех
+файлов..."
+ls -la
+echo "---"
+ls -la src/WebCalculator/
+echo "---"
+1s -la tests/
+WebCalculator.Tests/
+name: Устанавливаем. NET
+uses: actions/setup-dotnet@v3
+with:
+dotnet-version: $
+{{ env.DOTNET_VERSION ]}
+- name: Восстанавливаем
+зависСИМОСТИ
+run:|
+dotnet restore $
+{{ env.PROJECT_PATH }}
+dotnet restore $
+{{ env.TEST_PATH }}
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
-
-    - name: Restore dependencies
-      run: dotnet restore
-
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-
-    - name: Test
-      run: dotnet test --configuration Release --no-build --verbosity normal
-
-    - name: Publish
-      run: dotnet publish src/WebCalculator/WebCalculator.csproj --configuration Release --output ./publish
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: webcalculator-app
-        path: ./publish/
+# Джоба 2: Сборка проекта
+build:
+name: Сборка проекта
+needs: setup # Ждем завершения
+подготовки
+runs-on: ubuntu-latest
+steps:
+- name: Загружаем код
+uses: actions/checkout@v4
+- name: Устанавливаем.NET
+uses: actions/setup-dotnet@v3
+with:
+dotnet-version: $
+{{ env.DOTNET_VERSION ]}
+- name: Собираем проект
+run: dotnet build $
+{{ env.PROJECT_PATH }} --configuration
+Release --no-restore
+- name: Проверяем результат
+сборки
+run: |
+echo "Проверяем собранные
+файлы..."
+1s -la ${{ env.PROJECT_PATH }}/
+bin/Release/net8.0/
+- name: Сохраняем собранное
+приложение
+uses: actions/upload-artifact@v4
+with:
+name: web-calculator-app
+path: ${{ env.PROJECT_PATH }}/
+bin/Release/net8.0/
+retention-days: 7
